@@ -8,11 +8,12 @@ argv = sys.argv
 from datetime import datetime, timedelta
 from random import random, randint as rndm, choice
 
+# type and acceptable value checks
 is_positive_number = lambda num: isinstance(num, (int, float)) and num >= 0
 is_non_empty_string = lambda s: isinstance(s, str) and len(s) > 0
 is_valid_rating = lambda num: isinstance(num, int) and 1 <= num <= 5
 
-
+# import users from data/users.csv
 def import_users():
     with app.app_context():
         with open("data/users.csv", "r") as file:
@@ -25,6 +26,7 @@ def import_users():
             except:
                 print("Error adding user data")
 
+# import books from data/books.csv
 def import_books():
     with app.app_context():
         with open("data/books.csv", "r") as file:
@@ -43,24 +45,26 @@ def import_books():
                 rating = book.get("rating")
                 url = book.get("url")
                 category = book.get("category")
-
+                # convert data types from csv strings 
                 try:
                     price = float(price)
                     available = int(available)
                     rating = int(rating)
                 except:
-                    print("idk boss")
+                    print("Error: The record you attempted to add failed the type conversion.")
+                    print(price, available, rating)
                     continue
+                # type and acceptable value check implementation
                 if is_positive_number(price) and is_valid_rating(rating) and is_non_empty_string(upc) and is_non_empty_string(title) and is_non_empty_string(url) and is_positive_number(available) and is_non_empty_string(category):
                     pass
                 else:
                     print(title, price, upc, rating, category, url)
-                    print("idk slut")
+                    print("Error: The record you attempted to add failed the type and acceptable value check.")
                     continue
-                # if i need to add category to database
+
+                # check if category exists, create it if it doesn't
                 statement = db.select(Category).where(Category.name == category)
                 category_obj = db.session.execute(statement).scalar()
-
                 if not category_obj:
                     category_obj = Category(name=category)
                     # db.session.add(category_obj)
@@ -73,6 +77,7 @@ def import_books():
                 except:
                     print("Error adding book data")
 
+#  import book rentals from data/bookrentals.csv
 def import_rentals():
     with app.app_context():
         with open("data/bookrentals.csv", "r") as file:
@@ -82,6 +87,7 @@ def import_rentals():
                 user_name = rental.get("user_name")
                 statement = db.select(User.id).where(User.name == user_name)
                 existing_user = db.session.execute(statement).scalar()
+                # if user doesn't exist then continue to next iteration of loop
                 if not existing_user:
                     continue
                 rented = rental.get("rented")
@@ -100,8 +106,7 @@ def import_rentals():
                     returned_obj = datetime.strptime(returned, "%Y-%m-%d %H:%M")
                 else:
                     returned_obj = None
-
-
+                # type/acceptable value check for upc and user name before adding rental
                 if is_non_empty_string(book_upc) and is_non_empty_string(user_name):
                     book_rental = BookRental(book_id=existing_book.id, user_id=existing_user, rented=rented_obj, returned=returned_obj)
                     db.session.add(book_rental)
@@ -135,14 +140,6 @@ if __name__ == "__main__":
             import_books()
             import_rentals()
 
-
-
-        
-
-# statement = db.select(User.name).where(User.name == name)
-# existing_user = db.session.execute(statement).scalar()
-# if not existing_user:
-#     continue
 
 
 
