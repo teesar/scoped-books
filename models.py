@@ -39,7 +39,7 @@ class User(db.Model):
 class BookRental(db.Model):
     id = mapped_column(Integer, primary_key=True)
     user_id = mapped_column(Integer, ForeignKey("user.id"))
-    book_upc = mapped_column(String, ForeignKey("book.upc"))
+    book_id = mapped_column(Integer, ForeignKey("book.id"))
     rented = mapped_column(DateTime(timezone=True), nullable=False)
     returned = mapped_column(DateTime(timezone=True), nullable=True)
     user = relationship("User", back_populates="rented")

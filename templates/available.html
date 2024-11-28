@@ -7,12 +7,13 @@
 <table>
 <tr>
     <th style="text-align: left;">Title</th>
-    <th>Available</th>
+    <th style="text-align: left;">Category</th>
+    
 </tr>
 {% for book in books %}
 <tr>
     <td><a href="{{ url_for('book', id=book.id) }}">{{ book.title }}</a></td>
-    <td>{{ book.available }}</td>
+    <td><a href="{{ url_for('category_detail', name=book.category.name) }}">{{ book.category.name }}</a></td>
 </tr>
 {% endfor %}
 

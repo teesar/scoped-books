@@ -4,7 +4,7 @@ from models import Category, Book, User, BookRental
 # from sqlalchemy.orm import DeclarativeBase
 from pathlib import Path
 from db import db
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -59,10 +59,13 @@ def user(id):
     return render_template("user.html", result=result)
 
 @app.route("/available")
-def available():    
-    statement = db.select(Book).where(Book.available > 0)
-    books = db.session.execute(statement).scalars()
+def available():
+    statement = db.select(BookRental.book_id).where(BookRental.returned == None)
+    rented_book_ids = [id for id in db.session.execute(statement).scalars()]
+    available_books_stmt = db.select(Book).where(Book.id.notin_(rented_book_ids)).order_by(Book.title)
+    books = db.session.execute(available_books_stmt).scalars().all()
     return render_template("available.html", books=books)
+
 
 @app.route("/rented")
 def rented():

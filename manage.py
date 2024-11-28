@@ -87,9 +87,9 @@ def import_rentals():
                 rented = rental.get("rented")
                 returned = rental.get("returned")
                 # if upc doesn't exist then skip this record
-                statement = db.select(Book.upc).where(Book.upc == book_upc)
-                existing_upc = db.session.execute(statement).scalar()
-                if not existing_upc:
+                statement = db.select(Book).where(Book.upc == book_upc)
+                existing_book = db.session.execute(statement).scalar()
+                if not existing_book:
                     continue
                 # compare time/date format in rentals if there are issues
                 # will automatically show year-month-day hour:minute if i align command to csv order
@@ -103,7 +103,7 @@ def import_rentals():
 
 
                 if is_non_empty_string(book_upc) and is_non_empty_string(user_name):
-                    book_rental = BookRental(book_upc=book_upc, user_id=existing_user, rented=rented_obj, returned=returned_obj)
+                    book_rental = BookRental(book_id=existing_book.id, user_id=existing_user, rented=rented_obj, returned=returned_obj)
                     db.session.add(book_rental)
             try:
                 db.session.commit()

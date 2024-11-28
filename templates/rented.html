@@ -10,11 +10,13 @@
     <th style="text-align: left;">
         Title
     </th>
+    <th style="text-align: left;">Category</th>
 </tr>
 {% for book in results %}
 
 <tr>
     <td><a href="{{ url_for('book', id=book.book.id) }}">{{ book.book.title }}</a></td>
+    <td><a href="{{ url_for('category_detail', name=book.book.category.name) }}">{{ book.book.category.name }}</a></td>
 </tr>
 {% endfor %}
 </table>
