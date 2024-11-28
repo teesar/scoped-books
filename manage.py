@@ -30,11 +30,12 @@ def import_books():
         with open("data/books.csv", "r") as file:
             books = csv.DictReader(file)
             for book in books:
-                upc = book["upc"]
+                upc = book.get("upc")
                 statement = db.select(Book.upc).where(Book.upc == upc)
                 existing_upc = db.session.execute(statement).scalar()
                 # if book exists then skip this record
                 if existing_upc:
+                    print("existing")
                     continue
                 title = book.get("title")
                 price = book.get("price")
@@ -48,22 +49,24 @@ def import_books():
                     available = int(available)
                     rating = int(rating)
                 except:
+                    print("idk boss")
                     continue
-                if is_positive_number(price) and is_valid_rating(rating) and is_non_empty_string(upc) and is_non_empty_string(title) and is_non_empty_string(url) and is_non_empty_string(category):
+                if is_positive_number(price) and is_valid_rating(rating) and is_non_empty_string(upc) and is_non_empty_string(title) and is_non_empty_string(url) and is_positive_number(available) and is_non_empty_string(category):
                     pass
                 else:
+                    print(title, price, upc, rating, category, url)
+                    print("idk slut")
                     continue
                 # if i need to add category to database
-                statement = db.select(Category.name).where(Category.name == category)
+                statement = db.select(Category).where(Category.name == category)
                 category_obj = db.session.execute(statement).scalar()
+
                 if not category_obj:
                     category_obj = Category(name=category)
-                    db.session.add(category_obj)
-                    try:
-                        db.session.commit()
-                    except:
-                        print("Error adding category")
-                book_obj = Book(title=title, price=price, available=available, rating=rating, url=url, category=category_obj)
+                    # db.session.add(category_obj)
+                    
+                
+                book_obj = Book(title=title, price=price, upc=upc, available=available, rating=rating, url=url, category=category_obj)
                 db.session.add(book_obj)
                 try:
                     db.session.commit()
@@ -71,35 +74,41 @@ def import_books():
                     print("Error adding book data")
 
 def import_rentals():
-    with open("data/bookrentals.csv", "r") as file:
-        rentals = csv.DictReader(file)
-        for rental in rentals:
-            book_upc = rental.get("book_upc")
-            user_name = rental.get("user_name")
-            rented = rental.get("rented")
-            returned = rental.get("returned")
-            # if upc doesn't exist then skip this record
-            statement = db.select(Book.upc).where(Book.upc == upc)
-            existing_upc = db.session.execute(statement).scalar()
-            if not existing_upc:
-                continue
-            # compare time/date format in rentals if there are issues
-            # will automatically show year-month-day hour:minute if i align command to csv order
-            # if csv shows 30/12/2018 05:55:31 - then adjust to "%d/%m/%Y %H:%M:%S"
-            try:
-                rented_obj = datetime.strptime(rented, "%Y/%m/%d %H:%M")
-                returned_obj = datetime.strptime(rented, "%Y/%m/%d %H:%M")
-            except:
-                print("Error converting times in csv to datetime objects")
-                continue
+    with app.app_context():
+        with open("data/bookrentals.csv", "r") as file:
+            rentals = csv.DictReader(file)
+            for rental in rentals:
+                book_upc = rental.get("book_upc")
+                user_name = rental.get("user_name")
+                statement = db.select(User.id).where(User.name == user_name)
+                existing_user = db.session.execute(statement).scalar()
+                if not existing_user:
+                    continue
+                rented = rental.get("rented")
+                returned = rental.get("returned")
+                # if upc doesn't exist then skip this record
+                statement = db.select(Book.upc).where(Book.upc == book_upc)
+                existing_upc = db.session.execute(statement).scalar()
+                if not existing_upc:
+                    continue
+                # compare time/date format in rentals if there are issues
+                # will automatically show year-month-day hour:minute if i align command to csv order
+                # if csv shows 30/12/2018 05:55:31 - then adjust to "%d/%m/%Y %H:%M:%S"
+                if is_non_empty_string(rented):
+                    rented_obj = datetime.strptime(rented, "%Y-%m-%d %H:%M")
+                if is_non_empty_string(returned):    
+                    returned_obj = datetime.strptime(returned, "%Y-%m-%d %H:%M")
+                else:
+                    returned_obj = None
 
-            if is_non_empty_string(book_upc) and is_non_empty_string(user_name):
-                book_rental = BookRental(book_upc=book_upc, user_name=user_name, rented=rented_obj, returned=returned_obj)
-                db.session.add(book_rental)
-        try:
-            db.session.commit()
-        except:
-            print("Error adding rental data.")
+
+                if is_non_empty_string(book_upc) and is_non_empty_string(user_name):
+                    book_rental = BookRental(book_upc=book_upc, user_id=existing_user, rented=rented_obj, returned=returned_obj)
+                    db.session.add(book_rental)
+            try:
+                db.session.commit()
+            except:
+                print("Error adding rental data.")
 
 def drop_tables():
     with app.app_context():
