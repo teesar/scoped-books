@@ -18,7 +18,7 @@ def home():
 
 @app.route("/users")
 def users():
-    statement = db.select(User).order_by(User.name)
+    statement = db.select(User).order_by(User.id)
     results = db.session.execute(statement).scalars()
     return render_template("users.html", results=results)
 
@@ -73,6 +73,7 @@ def rented():
     results = db.session.execute(statement).scalars()
     return render_template("rented.html", results=results)
 
+# api - get all books
 @app.route("/api/books")
 def get_books():
     statement = db.select(Book)
@@ -82,6 +83,27 @@ def get_books():
         book_list.append(book.to_dict())
     return jsonify(book_list)
 
+# api - get all users 
+@app.route("/api/users")
+def get_users():
+    statement = db.select(User)
+    users = db.session.execute(statement).scalars()
+    user_list = []
+    for user in users:
+        user_list.append(user.to_dict())
+    return jsonify(user_list)
+
+# api - get all categories
+@app.route("/api/categories")
+def get_categories():
+    statement = db.select(Category)
+    categories = db.session.execute(statement).scalars()
+    category_list = []
+    for category in categories:
+        category_list.append(category.to_dict())
+    return jsonify(category_list)
+
+# api - get book
 @app.route("/api/books/<int:id>")
 def get_book(id):
     statement = db.select(Book).where(Book.id == id)
@@ -91,23 +113,22 @@ def get_book(id):
     book = book.to_dict()
     return jsonify(book)
 
+# api - add rental
 @app.route("/api/books/<int:id>/rent", methods=["POST"])
 def rent_book(id):
     data = request.get_json()
-    copy = data.get("copy")
     user = data.get("user_id")
     statement = db.select(Book).where(Book.id == id)
     book = db.session.execute(statement).scalar()
     rented= datetime.now()
-    expected = rented + timedelta(days=7)
     if not rented:
         return "That book doesn't exist", 400
-    new_rental = BookRental(user_id = user, book_id = book.id, rented = rented, expected = expected, copy_id=copy)
+    new_rental = BookRental(user_id = user, book_id = book.id, rented = rented)
     db.session.add(new_rental)
     db.session.commit()
     return jsonify(new_rental.to_dict())
 
-
+# api - add book
 @app.route("/api/books", methods=["POST"])
 def create_book():
     data = request.get_json()

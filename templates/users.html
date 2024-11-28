@@ -2,9 +2,14 @@
 {% block content %}
 <h1>Users</h1>
 <table>
+<tr>
+    <th>User ID</th>
+    <th>User Name</th>
+</tr>
 {% for user in results %}
 
 <tr>
+    <td>{{ user.id }}</td>
     <td><a href="{{ url_for('user', id=user.id) }}">{{ user.name }}</a></td>
 </tr>
 

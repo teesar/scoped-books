@@ -31,10 +31,22 @@ class Category(db.Model):
     name = mapped_column(String, unique=True)
     books = relationship("Book", back_populates="category")
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
 class User(db.Model):
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
     name = mapped_column(String)
     rented = relationship("BookRental", back_populates="user")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
 
 class BookRental(db.Model):
     id = mapped_column(Integer, primary_key=True)

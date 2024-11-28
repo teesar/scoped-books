@@ -2,7 +2,7 @@
 {% block content %}
 <h2>{{ result.title }}</h2>
 <h4>Book ID: {{ result.id }}</h4>
-<h5>Available: {{ result.available }}</h5>
+<!-- <h5>Available: {{ result.available }}</h5> -->
 
 
 <table>
@@ -13,7 +13,7 @@
 </tr>
 {% for rental in result.rentals %}
 <tr>
-<td>{{ rental.user.name }}</td>
+<td><a href="{{ url_for('user', id=rental.user.id) }}">{{ rental.user.name }}</a></td>
 <td>{{ rental.rented.strftime("%Y-%m-%d %H:%m") }}</td>
 <td>{% if rental.returned %}{{ rental.returned.strftime("%Y-%m-%d") }}
 {% endif %}</td>

@@ -14,3 +14,15 @@ nav {
     background-color: whitesmoke;
     padding: 5px;
 }
+
+tr {
+    text-align: left;
+}
+
+th {
+    text-align: left;
+}
+
+td {
+    text-align: left;
+}
