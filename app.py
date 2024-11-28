@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from models import Category, Book, User, BookRental
-# from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy.orm import DeclarativeBase
 from pathlib import Path
 from db import db
 from sqlalchemy import select, or_
