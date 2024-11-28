@@ -1,0 +1,16 @@
+p {
+    font-size: 20px;
+}
+
+nav a {
+    padding: 10px;
+}
+
+th, td {
+    padding:10px;
+}
+
+nav {
+    background-color: whitesmoke;
+    padding: 5px;
+}

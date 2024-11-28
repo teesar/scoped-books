@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ heading }}</h1>
+{% for book in results %}
+<p>
+    <span><a href="{{ url_for('book', id=book.id) }}">{{ book.title }}</a></span>
+</p>
+{% endfor %}
+{% endblock %}
+

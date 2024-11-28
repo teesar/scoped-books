@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Users</h1>
+<table>
+{% for user in results %}
+
+<tr>
+    <td><a href="{{ url_for('user', id=user.id) }}">{{ user.name }}</a></td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}

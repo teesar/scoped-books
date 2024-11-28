@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ result.title }}</h2>
+<h4>Book ID: {{ result.id }}</h4>
+<h5>Available: {{ result.available }}</h5>
+
+
+<table>
+<tr>
+    <th>Copy</th>
+    <th>Name</th>
+    <th>Rented</th>
+    <th>Expected</th>
+    <th>Returned</th>
+</tr>
+{% for rental in result.rentals %}
+<tr>
+<td>{{ rental.copy_id }}</td>
+<td>{{ rental.user.name }}</td>
+<td>{{ rental.rented.strftime("%Y-%m-%d %H:%m") }}</td>
+<td>{% if rental.returned %}{{ rental.returned.strftime("%Y-%m-%d") }}
+{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

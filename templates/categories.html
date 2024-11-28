@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Categories</h1>
+{% for category in results %}
+<p>
+    <a href="{{ url_for('category_detail', name=category.name) }}"><span>{{ category.name }}</span></a>
+</p>
+{% endfor %}
+{% endblock %}
+
