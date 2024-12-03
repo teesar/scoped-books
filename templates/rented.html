@@ -15,8 +15,9 @@
 {% for book in results %}
 
 <tr>
-    <td><a href="{{ url_for('book', id=book.book.id) }}">{{ book.book.title }}</a></td>
-    <td><a href="{{ url_for('category_detail', name=book.book.category.name) }}">{{ book.book.category.name }}</a></td>
+
+    <td><a href="{{ url_for('book', id=book.id) }}">{{ book.title }}</a></td>
+    <td><a href="{{ url_for('category_detail', name=book.category.name) }}">{{ book.category.name }}</a></td>
 </tr>
 {% endfor %}
 </table>

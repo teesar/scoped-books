@@ -8,7 +8,7 @@ class Book(db.Model):
     price = mapped_column(DECIMAL(10, 2))
     available = mapped_column(Integer, default=0)
     rating = mapped_column(Integer)
-    upc = mapped_column(String)
+    upc = mapped_column(String, unique=True)
     url = mapped_column(String)
     category_id = mapped_column(Integer, ForeignKey("category.id"))
     category = relationship("Category", back_populates="books")

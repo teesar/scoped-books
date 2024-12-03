@@ -6,12 +6,21 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
+        <!-- <style>
+            body {
+                background-image: url("{{ url_for('static', filename='images/background2.jpg') }}");
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }
+        </style> -->
         <nav>
             <a href="{{ url_for('home') }}">Homepage</a>
             <a href="{{ url_for('users') }}">Users</a>
             <a href="{{ url_for('books') }}">Books</a>
             <a href="{{ url_for('categories') }}">Categories</a>
         </nav>
+        
         {% block content %}
         {% endblock %}
     </body>

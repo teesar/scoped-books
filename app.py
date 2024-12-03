@@ -33,6 +33,7 @@ def categories():
 # route for showing individual category
 @app.route("/categories/<string:name>")
 def category_detail(name):
+    #ilike for case sensitivity
     statement = db.select(Book).where(Book.category.has(Category.name.ilike(name)))
     results = db.session.execute(statement).scalars()
     if not results:
@@ -67,16 +68,20 @@ def user(id):
 # route for showing available books
 @app.route("/available")
 def available():
-    statement = db.select(BookRental.book_id).where(BookRental.returned == None)
-    rented_book_ids = [id for id in db.session.execute(statement).scalars()]
-    available_books_stmt = db.select(Book).where(Book.id.notin_(rented_book_ids)).order_by(Book.title)
-    books = db.session.execute(available_books_stmt).scalars().all()
+    statement = (db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title))
+    books = db.session.execute(statement).scalars().all()
+    # shitty version
+    # statement = db.select(BookRental.book_id).where(BookRental.returned == None)
+    # rented_book_ids = [id for id in db.session.execute(statement).scalars()]
+    # available_books_stmt = db.select(Book).where(Book.id.notin_(rented_book_ids)).order_by(Book.title)
+    # books = db.session.execute(available_books_stmt).scalars().all()
     return render_template("available.html", books=books)
 
 # route for showing rented books
 @app.route("/rented")
 def rented():
-    statement = db.select(BookRental).where(BookRental.returned == None)
+    # statement = db.select(BookRental).where(BookRental.rented < datetime.now()).where(BookRental.returned == None)
+    statement = db.select(Book).where(Book.rentals.any(BookRental.rented < datetime.now())).where(Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
     results = db.session.execute(statement).scalars()
     return render_template("rented.html", results=results)
 
@@ -138,8 +143,9 @@ def rent_book(id):
 # api - add book
 @app.route("/api/books", methods=["POST"])
 def create_book():
+    data = request.get_json()      
     # get json from the request
-    data = request.get_json()
+    
     # set fields that the json must contain, then iterate and check each exists, return error if not
     required_fields = ["available", "category", "price", "rating", "title", "upc", "url"]
     for field in required_fields:
@@ -148,7 +154,8 @@ def create_book():
         
     available = data.get("available")
     category = data.get("category")
-    category_statement = db.select(Category).where(Category.name == category)
+
+    category_statement = db.select(Category).where(Category.name.ilike(category))
     category_check = db.session.execute(category_statement).scalar()
     # if category doesn't exist then add it to the database - flush to add to session but not commit yet
     if not category_check:
@@ -169,7 +176,7 @@ def create_book():
     if upc_check:
         return "A book with that UPC already exists", 400
     
-    # slightly convoluted type/value checks
+    # type/value checks
     if available <= 0 or type(available) != int:
         return "Available must be a positive integer", 400
     if type(price) != float or price <= 0:
