@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from models import Category, Book, User, BookRental
 from pathlib import Path
 from db import db
-from sqlalchemy import select
+from sqlalchemy import select, update
 from datetime import datetime
 
 # flask app initiation, setting database file to database.db, putting it in directory data
@@ -47,6 +47,8 @@ def books():
     results = db.session.execute(statement).scalars()
     return render_template("books.html", results=results)
 
+# remember to return
+
 # route for showing individual book
 @app.route("/book/<int:id>")
 def book(id):
@@ -85,6 +87,8 @@ def rented():
     results = db.session.execute(statement).scalars()
     return render_template("rented.html", results=results)
 
+
+# for br in b.rentals if br.dfaf == None | bad
 # api - get all books
 @app.route("/api/books")
 def get_books():
@@ -130,16 +134,32 @@ def get_book(id):
 def rent_book(id):
     data = request.get_json()
     user = data.get("user_id")
-    statement = db.select(Book).where(Book.id == id)
+    statement = db.select(Book).where(Book.id == id).where(Book.rentals.any(BookRental.rented == None))
     book = db.session.execute(statement).scalar()
+    if not book:
+        return "That book isn't available", 400
     rented= datetime.now()
-    if not rented:
-        return "That book doesn't exist", 400
     new_rental = BookRental(user_id = user, book_id = book.id, rented = rented)
     db.session.add(new_rental)
     db.session.commit()
     return jsonify(new_rental.to_dict())
 
+# api - set returned date with book id
+@app.route("/api/books/return", methods=["POST"])
+def return_book():
+    data = request.get_json()
+    id = data.get("book_id")
+    returned = datetime.now()
+    statement = db.update(BookRental).where(BookRental.book_id == id).values(returned=returned)
+    db.session.execute(statement)
+    db.session.commit()
+    return "thanks"
+
+# api - return rental records by user id
+@app.route("/api/")
+
+
+    
 # api - add book
 @app.route("/api/books", methods=["POST"])
 def create_book():
