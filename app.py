@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from models import Category, Book, User, BookRental
 from pathlib import Path
 from db import db
-from sqlalchemy import select, or_
-from datetime import datetime, timedelta
+from sqlalchemy import select
+from datetime import datetime
 
 # flask app initiation, setting database file to database.db, putting it in directory data
 app = Flask(__name__)

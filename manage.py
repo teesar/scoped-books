@@ -26,7 +26,7 @@ def import_users():
             except:
                 print("Error adding user data")
 
-# import books from data/books.csv
+# import books from data/books.csv - remember to change if new file names
 def import_books():
     with app.app_context():
         with open("data/books.csv", "r") as file:
@@ -67,8 +67,6 @@ def import_books():
                 category_obj = db.session.execute(statement).scalar()
                 if not category_obj:
                     category_obj = Category(name=category)
-                    # db.session.add(category_obj)
-                    
                 
                 book_obj = Book(title=title, price=price, upc=upc, available=available, rating=rating, url=url, category=category_obj)
                 db.session.add(book_obj)
@@ -133,6 +131,7 @@ if __name__ == "__main__":
             import_users()
             import_books()
             import_rentals()
+        # one command to rule them all
         elif argv[1].lower() == "boom":
             drop_tables()
             create_tables()
