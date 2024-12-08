@@ -151,13 +151,14 @@ def return_book(id):
     returned = datetime.now()
     statement = db.select(BookRental).where(BookRental.book_id == id).where(BookRental.returned == None)
     rental = db.session.execute(statement).scalar()
+    rental_obj = rental
     if not rental:
         return "Error, that book isn't currently rented", 403
     rental.returned = returned
     db.session.commit()
-    statement = db.select(BookRental).where(BookRental.book_id == id).order_by(BookRental.returned)
-    rental = db.session.execute(statement).scalar()
-    return jsonify(rental.to_dict())
+    # statement = db.select(BookRental).where(BookRental.book_id == id).order_by(BookRental.returned)
+    # rental = db.session.execute(statement).scalar()
+    return jsonify(rental_obj.to_dict())
 
 
 # api - return rental records by user id
