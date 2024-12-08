@@ -134,7 +134,8 @@ def get_book(id):
 def rent_book(id):
     data = request.get_json()
     user = data.get("user_id")
-    statement = db.select(Book).where(Book.id == id).where(Book.rentals.any(BookRental.rented == None))
+    statement = db.select(Book).where(Book.id == id).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None))
+    #statement = db.select(Book).where(Book.id == id).where(Book.rentals.any(BookRental.rented == None))
     book = db.session.execute(statement).scalar()
     if not book:
         return "That book isn't available", 400
