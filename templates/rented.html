@@ -7,6 +7,7 @@
 <br>
 <table>
 <tr>
+    <th style="text-align: left;">ID</th>
     <th style="text-align: left;">
         Title
     </th>
@@ -15,7 +16,7 @@
 {% for book in results %}
 
 <tr>
-
+    <td><a href="{{ url_for('book', id=book.id) }}">{{ book.id }}</a></td>
     <td><a href="{{ url_for('book', id=book.id) }}">{{ book.title }}</a></td>
     <td><a href="{{ url_for('category_detail', name=book.category.name) }}">{{ book.category.name }}</a></td>
 </tr>

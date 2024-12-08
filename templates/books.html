@@ -6,11 +6,13 @@
 <span><a href="{{ url_for('rented') }}">Rented</a></span>
 <table>
 <tr>
+    <th style="text-align: left;">ID</th>
     <th style="text-align: left;">Title</th>
     <th style="text-align: left;">Category</th>
 </tr>
 {% for book in results %}
 <tr>
+    <td><a href="{{ url_for('book', id=book.id) }}">{{ book.id }}</td></a>
     <td><a href="{{ url_for('book', id=book.id) }}">{{ book.title }}</td></a>
     <td> <a href="{{ url_for('category_detail', name=book.category.name) }}">{{ book.category.name }}</td></a>
 </tr>
