@@ -70,14 +70,9 @@ def user(id):
 # route for showing available books
 @app.route("/available")
 def available():
+    # pipe command for OR - selects books where there are no book rental records OR books with no rental records with None for returned status
     statement = db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
-    # statement = db.select(Book).where(Book.rentals.any(BookRental.returned != None)).order_by(Book.title)
     books = db.session.execute(statement).scalars().all()
-    # shitty version
-    # statement = db.select(BookRental.book_id).where(BookRental.returned == None)
-    # rented_book_ids = [id for id in db.session.execute(statement).scalars()]
-    # available_books_stmt = db.select(Book).where(Book.id.notin_(rented_book_ids)).order_by(Book.title)
-    # books = db.session.execute(available_books_stmt).scalars().all()
     return render_template("available.html", books=books)
 
 # route for showing rented books
@@ -90,10 +85,9 @@ def rented():
     return render_template("rented.html", results=results)
 
 
-
-
-
 # for br in b.rentals if br.dfaf == None | bad
+
+
 # api - get all books
 @app.route("/api/books")
 def get_books():
@@ -102,6 +96,7 @@ def get_books():
     book_list = []
     for book in books:
         book_list.append(book.to_dict())
+    # 
     return jsonify(book_list)
 
 # api - get all users 
