@@ -70,8 +70,8 @@ def user(id):
 # route for showing available books
 @app.route("/available")
 def available():
-    # statement = (db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title))
-    statement = db.select(Book).where(Book.rentals.any(BookRental.returned != None)).order_by(Book.title)
+    statement = db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
+    # statement = db.select(Book).where(Book.rentals.any(BookRental.returned != None)).order_by(Book.title)
     books = db.session.execute(statement).scalars().all()
     # shitty version
     # statement = db.select(BookRental.book_id).where(BookRental.returned == None)
