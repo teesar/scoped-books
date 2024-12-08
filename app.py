@@ -70,7 +70,8 @@ def user(id):
 # route for showing available books
 @app.route("/available")
 def available():
-    statement = (db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title))
+    # statement = (db.select(Book).where(~Book.rentals.any() | ~Book.rentals.any(BookRental.returned == None)).order_by(Book.title))
+    statement = db.select(Book).where(Book.rentals.any(BookRental.returned != None)).order_by(Book.title)
     books = db.session.execute(statement).scalars().all()
     # shitty version
     # statement = db.select(BookRental.book_id).where(BookRental.returned == None)
@@ -83,9 +84,13 @@ def available():
 @app.route("/rented")
 def rented():
     # statement = db.select(BookRental).where(BookRental.rented < datetime.now()).where(BookRental.returned == None)
-    statement = db.select(Book).where(Book.rentals.any(BookRental.rented < datetime.now())).where(Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
+    # statement = db.select(Book).where(Book.rentals.any(BookRental.rented < datetime.now())).where(Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
+    statement = db.select(Book).where(Book.rentals.any(BookRental.returned == None)).order_by(Book.title)
     results = db.session.execute(statement).scalars()
     return render_template("rented.html", results=results)
+
+
+
 
 
 # for br in b.rentals if br.dfaf == None | bad
@@ -145,18 +150,20 @@ def rent_book(id):
     return jsonify(new_rental.to_dict())
 
 # api - set returned date with book id
-@app.route("/api/books/return", methods=["POST"])
-def return_book():
-    data = request.get_json()
-    id = data.get("book_id")
+@app.route("/api/books/<int:id>/return", methods=["PUT"])
+def return_book(id):
+    # data = request.get_json()
+    # id = data.get("book_id")
     returned = datetime.now()
     statement = db.update(BookRental).where(BookRental.book_id == id).values(returned=returned)
+    if not statement:
+        return "Error, that book hasn't been rented", 403
     db.session.execute(statement)
     db.session.commit()
-    return "thanks"
+# do more here
 
 # api - return rental records by user id
-@app.route("/api/")
+# @app.route("/api/")
 
 
     
