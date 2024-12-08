@@ -145,18 +145,20 @@ def rent_book(id):
     db.session.commit()
     return jsonify(new_rental.to_dict())
 
-# api - set returned date to datetime.now() with book id
+# api - return book by setting returned to datetime.now()
 @app.route("/api/books/<int:id>/return", methods=["PUT"])
 def return_book(id):
-    # data = request.get_json()
-    # id = data.get("book_id")
     returned = datetime.now()
-    statement = db.update(BookRental).where(BookRental.book_id == id).where(BookRental.returned == None).values(returned=returned)
-    if not statement:
+    statement = db.select(BookRental).where(BookRental.book_id == id).where(BookRental.returned == None)
+    rental = db.session.execute(statement).scalar()
+    if not rental:
         return "Error, that book isn't currently rented", 403
-    db.session.execute(statement)
+    rental.returned = returned
     db.session.commit()
-# do more here
+    statement = db.select(BookRental).where(BookRental.book_id == id).order_by(BookRental.returned)
+    rental = db.session.execute(statement).scalar()
+    return jsonify(rental.to_dict())
+
 
 # api - return rental records by user id
 # @app.route("/api/")
