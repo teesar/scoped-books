@@ -93,6 +93,8 @@ def rented():
 def get_books():
     statement = db.select(Book)
     books= db.session.execute(statement).scalars()
+    if not books:
+        return "Error: No books currently exist!", 404
     book_list = []
     for book in books:
         book_list.append(book.to_dict())
@@ -104,6 +106,8 @@ def get_books():
 def get_users():
     statement = db.select(User)
     users = db.session.execute(statement).scalars()
+    if not users:
+        return "Error: No users currently exist!", 404
     user_list = []
     for user in users:
         user_list.append(user.to_dict())
@@ -114,6 +118,8 @@ def get_users():
 def get_categories():
     statement = db.select(Category)
     categories = db.session.execute(statement).scalars()
+    if not categories:
+        return "Error: No categories currently exist!", 404
     category_list = []
     for category in categories:
         category_list.append(category.to_dict())
@@ -125,7 +131,7 @@ def get_book(id):
     statement = db.select(Book).where(Book.id == id)
     book = db.session.execute(statement).scalar()
     if not book:
-        return f"BOOK ID:{id} NOT FOUND!", 404
+        return f"Error: BOOK ID:{id} NOT FOUND!", 404
     book = book.to_dict()
     return jsonify(book)
 
@@ -138,21 +144,21 @@ def rent_book(id):
     #statement = db.select(Book).where(Book.id == id).where(Book.rentals.any(BookRental.rented == None))
     book = db.session.execute(statement).scalar()
     if not book:
-        return "That book isn't available", 400
+        return "Error: That book isn't available", 403
     rented= datetime.now()
     new_rental = BookRental(user_id = user, book_id = book.id, rented = rented)
     db.session.add(new_rental)
     db.session.commit()
     return jsonify(new_rental.to_dict())
 
-# api - return book by setting returned to datetime.now()
+# api - return book
 @app.route("/api/books/<int:id>/return", methods=["PUT"])
 def return_book(id):
     returned = datetime.now()
     statement = db.select(BookRental).where(BookRental.book_id == id).where(BookRental.returned == None)
     rental = db.session.execute(statement).scalar()
     if not rental:
-        return "Error, that book isn't currently rented", 403
+        return "Error: Book isn't currently rented!", 403
     rental.returned = returned
     db.session.commit()
     # statement = db.select(BookRental).where(BookRental.book_id == id).order_by(BookRental.returned)
@@ -160,8 +166,18 @@ def return_book(id):
     return jsonify(rental.to_dict())
 
 
-# api - return rental records by user id
-# @app.route("/api/")
+# api - get all rental records
+@app.route("/api/rentals")
+def get_rentals():
+    statement = db.select(BookRental)
+    records = db.session.execute(statement).scalars()
+    if not records:
+        return "Error: No rental records exist!", 404
+    records_list = []
+    for record in records:
+        records_list.append(record.to_dict())
+    return jsonify(records_list)
+
 
 
     
@@ -175,7 +191,7 @@ def create_book():
     required_fields = ["available", "category", "price", "rating", "title", "upc", "url"]
     for field in required_fields:
         if field not in data:
-            return "Missing field", 400
+            return "Error: Missing field!", 400
         
     available = data.get("available")
     category = data.get("category")
