@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from models import Category, Book, User, BookRental
 from pathlib import Path
 from db import db
-from sqlalchemy import select, update
+from sqlalchemy import select
 from datetime import datetime
 
 # flask app initiation, setting database file to database.db, putting it in directory data
@@ -47,8 +47,6 @@ def books():
     results = db.session.execute(statement).scalars()
     return render_template("books.html", results=results)
 
-# remember to return
-
 # route for showing individual book
 @app.route("/book/<int:id>")
 def book(id):
@@ -84,9 +82,7 @@ def rented():
     results = db.session.execute(statement).scalars()
     return render_template("rented.html", results=results)
 
-
-# for br in b.rentals if br.dfaf == None | bad
-
+# for br in b.rentals if br.dfaf == None | 
 
 # api - get all books
 @app.route("/api/books")
@@ -165,7 +161,6 @@ def return_book(id):
     # rental = db.session.execute(statement).scalar()
     return jsonify(rental.to_dict())
 
-
 # api - get all rental records
 @app.route("/api/rentals")
 def get_rentals():
@@ -178,9 +173,6 @@ def get_rentals():
         records_list.append(record.to_dict())
     return jsonify(records_list)
 
-
-
-    
 # api - add book
 @app.route("/api/books", methods=["POST"])
 def create_book():
@@ -195,7 +187,7 @@ def create_book():
         
     available = data.get("available")
     category = data.get("category")
-
+    # ilike to compare without case mattering
     category_statement = db.select(Category).where(Category.name.ilike(category))
     category_check = db.session.execute(category_statement).scalar()
     # if category doesn't exist then add it to the database - flush to add to session but not commit yet
@@ -248,6 +240,6 @@ def create_book():
 
     # returning the object we added as json data to the actor that initiated the process for verification
     return jsonify(book.to_dict())
-
+# we are broadcasting live on port 8888
 if __name__ == "__main__":
     app.run(debug=True, port=8888)

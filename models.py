@@ -66,3 +66,11 @@ class BookRental(db.Model):
             "returned": self.returned,
         }
 
+# If I have a book object and want the category name: 
+# category_name = book.category.name
+
+# If I have a book object and want a list of all bookrental objects related to it: 
+# rentals = book.rentals
+# If I want to iterate over them and print some data:
+# for rental in rentals:
+#    print(f"Rental ID: {rental.id}, Rented: {rental.rented}")

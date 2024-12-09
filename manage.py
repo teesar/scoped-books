@@ -19,6 +19,7 @@ def import_users():
         with open("data/users.csv", "r") as file:
             users = csv.DictReader(file)
             for user in users:
+                # unpack user dictionary to add keyword arguments and create user instance
                 user_obj = User(**user)
                 db.session.add(user_obj)
             try:
@@ -37,7 +38,7 @@ def import_books():
                 existing_upc = db.session.execute(statement).scalar()
                 # if book exists then skip this record
                 if existing_upc:
-                    print("existing")
+                    print(f"Skipping Title: {book.get("title")}  UPC: {book.get("upc")}  : Upc already exists in database.")
                     continue
                 title = book.get("title")
                 price = book.get("price")
@@ -113,6 +114,7 @@ def import_rentals():
             except:
                 print("Error adding rental data.")
 
+
 def drop_tables():
     with app.app_context():
         db.drop_all()
@@ -137,6 +139,12 @@ if __name__ == "__main__":
             create_tables()
             import_users()
             import_books()
+            import_rentals()
+        elif argv[1].lower() == "import books":
+            import_books()
+        elif argv[1].lower() == "import users":
+            import_users()
+        elif argv[1].lower() == "import rentals":
             import_rentals()
 
 
